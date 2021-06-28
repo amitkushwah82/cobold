@@ -170,6 +170,17 @@ class HomeController extends Controller
             $expense->amount = $request->amount;
             $expense->save();
 
+            // distributed data in each user
+            $distributions = AmountDistribution::where('expense_id',$request->id)->get();
+            $userCount = count($distributions);
+            $equalAmount = $request->amount/$userCount;
+            foreach($distributions as $key){
+                $distribution = AmountDistribution::find($key->id);
+                $distribution->user_id = $request->user_id;
+                $distribution->distributed_amount = $equalAmount;
+                $distribution->save();
+            }
+
             return redirect()->back()->with('success','Team expense updated successfully!');
         }catch(Exception $ex){
             return redirect()->back()->withInput()->withErrors($ex->getMessage());
